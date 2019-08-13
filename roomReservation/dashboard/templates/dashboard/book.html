@@ -1,0 +1,95 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href={% static './bs-css/bootstrap.min.css' %}>
+<script src={% static './bs-js/jquery.min.js' %}></script>
+<script src={% static './bs-js/bootstrap.min.js' %}></script>
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Room Reservation</title>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">Room Reservation</a>
+            <div class="collapse navbar-collapse" id="collapsibleNavId">
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                    <!-- <li class="nav-item active">
+					<a class="nav-link" href="#">Room Reservation <span class="sr-only">(current)</span></a>
+				</li> -->
+                    <!-- <li class="nav-item">
+					<a class="nav-link" href="#">Link</a>
+				</li>				 -->
+                </ul>
+                <!-- <form class="form-inline my-2 my-lg-0">
+				<input class="form-control mr-sm-2" type="text" placeholder="Search">
+				<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+			</form> -->
+            </div>
+        </nav>
+        <br /><br />
+        <div class="container">
+            <div class="row">
+                <div class="col-4"></div>
+                <div class="col-4 text-center">
+                    <h3>{{day}}-{{month}}-{{year}}</h3>
+                    <h3>Room Number: {{roomNumber}}</h3>
+                </div>
+                <div class="col-4"></div>
+            </div>
+            <br><br>
+            {% if not name %}
+            <form action="/dashboard/book" method="POST" class="form-control alert-secondary">                
+                <br><br>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-4">
+                            <label for="name">Enter the name:</label>                            
+                        </div>
+                        <div class="col-8">
+                            <input type="text" name="name" id="name" class="form-control">
+                        </div>                        
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-4">
+                            <label for="numberOfDays">Select the number of days:</label>                            
+                        </div>
+                        <div class="col-8">
+                            <select name="numberOfDays" id="numberOfDays" class="form-control">
+                                <option value="1">One Day</option>
+                                <option value="2">Two Days</option>
+                                <option value="3">Three Days</option>
+                                <option value="4">Four Days</option>
+                                <option value="5">Five Days</option>
+                                <option value="6">Six Days</option>
+                                <option value="7">Seven Days</option>
+                                <option value="8">Eight Days</option>
+                                <option value="9">Nine Days</option>
+                                <option value="10">Ten Days</option>                                
+                            </select>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-10"></div>
+                        <div class="col-2">
+                            <input type="submit" value="Book" class="btn btn-success btn-lg">
+                        </div>
+                    </div>
+                </div>
+                <br>
+            </form>
+            {% endif %}
+            {% if name %}
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <h4>Booked By - {{name}} on {{time}}</h4>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </body>
+</html>

@@ -1,0 +1,264 @@
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href={% static './bs-css/bootstrap.min.css' %}>
+<script src={% static './bs-js/jquery.min.js' %}></script>
+<script src={% static './bs-js/bootstrap.min.js' %}></script>
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <title>Room Reservation</title>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">Room Reservation</a>
+            <div class="collapse navbar-collapse" id="collapsibleNavId">
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                    <!-- <li class="nav-item active">
+					<a class="nav-link" href="#">Room Reservation <span class="sr-only">(current)</span></a>
+				</li> -->
+                    <!-- <li class="nav-item">
+					<a class="nav-link" href="#">Link</a>
+				</li>				 -->
+                </ul>
+                <!-- <form class="form-inline my-2 my-lg-0">
+				<input class="form-control mr-sm-2" type="text" placeholder="Search">
+				<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+			</form> -->
+            </div>
+        </nav>
+        <br /><br />
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h4 id="bookedrooms">Rooms Booked Today - </h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-4 text-right">
+                    <button class="btn btn-original" id="previousMonth">
+                        <img src={% static "/icons/left.png" %} height="48">
+                    </button>
+                </div>
+                <div class="col-2 text-right">
+                    <h4 id="month"></h4>
+                </div>
+                <div class="col-2 text-left">
+                    <h4 id="year"></h4>
+                </div>
+                <div class="col-4 text-left">
+                    <button class="btn btn-original" id="nextMonth">
+                        <img src={% static "/icons/right.png" %} height="48">
+                    </button>
+                </div>
+            </div>
+            <br />
+            <table class="table text-center">
+                <tr>
+                    <thead>
+                        <th>Sunday</th>
+                        <th>Monday</th>
+                        <th>Tuesday</th>
+                        <th>Wednesday</th>
+                        <th>Thursday</th>
+                        <th>Friday</th>
+                        <th>Saturday</th>
+                    </thead>
+                    <tbody id="calender-body"></tbody>
+                </tr>
+            </table>
+        </div>
+    </body>
+    <script>
+
+    var bookedRooms = [];
+        // Get the values from the django list and store in javascript array
+        {% for bookedRoom in bookedRooms %}
+            bookedRooms.push("{{bookedRoom}}")
+        {% endfor %}
+        // Remove the default class attribute and add another class with red background
+        bookedRooms.forEach(bookedRoom => {
+            id = String(bookedRoom);
+            element = document.getElementById("bookedrooms");
+            var innertext = element.innerHTML;
+            innertext = innertext + id + ",";
+            element.innerHTML = innertext;
+        }); 
+        // Function that loads the current month
+        function loadCurrentMonth(monthFlag, yearFlag) {
+            // Variables that store the current values
+            var d = new Date();
+            var months = [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December"
+            ];
+            var currentDay = d.getDate();
+            var currentYear = d.getFullYear() + yearFlag;
+
+            // Determine whether the month is leap or not and assign their noOfDays
+            var noOfDaysInMonths = [];
+            if (
+                (parseInt(currentYear) % 4 == 0 && parseInt(currentYear) % 100 != 0) ||
+                parseInt(currentYear) % 400 == 0
+            ) {
+                noOfDaysInMonths = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            } else {
+                noOfDaysInMonths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            }
+            // Declare more variables
+            var currentDayOfTheWeek = d.getDay();
+            var currentFirstDay = new Date(d.getFullYear() + yearFlag, d.getMonth() + monthFlag, 1);
+            currentFirstDay = currentFirstDay.getDay();
+            var currentMonth = months[d.getMonth() + monthFlag];
+            var currentMonthNumber = d.getMonth();
+            var currentNoOfDaysInMonth = noOfDaysInMonths[d.getMonth() + monthFlag];
+            // Update the month and year at the header
+            document.getElementById("month").innerHTML = currentMonth;
+            document.getElementById("year").innerHTML = currentYear;
+
+            //Remove the previous entry
+            while (document.getElementById("calender-body").firstChild) {
+                document
+                    .getElementById("calender-body")
+                    .removeChild(document.getElementById("calender-body").firstChild);
+            }
+
+            // Update the calender details
+            // Create a row
+            var calenderBody = document.getElementById("calender-body");
+            var row = document.createElement("tr");
+            // Value to be displayed on each button
+            var dayValue = 1;
+            // Loop 6 * 7 times portraying the 6 rows and 7 columns
+            for (var i = 0; i < 42; i++) {
+                // Terminate a row and continue the next one
+                if (i % 7 == 0) {
+                    calenderBody.appendChild(row);
+                    row = document.createElement("tr");
+                }
+                // Create a data entry to be displayed
+                var data = document.createElement("td");
+                // Skip the occurances where days dont occur
+                if (i < currentFirstDay || i >= currentNoOfDaysInMonth + currentFirstDay) {
+                    // Blank
+                } else {
+
+                    var postDay = dayValue;
+                    var postMonth = parseInt(currentMonthNumber + monthFlag) + 1;
+                    var postYear = currentYear + yearFlag;
+                    var postData = postDay + "-" + postMonth + "-" + postYear;
+                    // Create a form
+                    var form = document.createElement("form");
+                    form.setAttribute("method", "POST");
+                    form.setAttribute("action", "/dashboard/rooms");
+                    // Add the data to be passed to a hidden text field value
+                    var hiddenField = document.createElement("input");
+                    hiddenField.setAttribute("type", "hidden");
+                    hiddenField.setAttribute("name", "postData");
+                    hiddenField.setAttribute("value", postData);
+                    // Add the required data to be displayed
+                    var innerData = document.createElement("button");
+                    if (dayValue == currentDay && monthFlag == 0 && yearFlag == 0) {
+                        innerData.setAttribute("class", "btn btn-success btn-lg");
+                    } else {
+                        innerData.setAttribute("class", "btn btn-primary btn-lg");
+                    }
+                    // innerData.setAttribute(
+                    //     "onClick",
+                    //     // "executeOnClick( + " + dayValue + "," + currentMonthNumber + "," + monthFlag + "," + currentYear + "," + yearFlag + ");"    //The function to be executed on a click of the dates
+                    // );
+                    innerData.setAttribute("type", "submit");
+                    if (dayValue < 10) {
+                        innerData.innerHTML = "0" + dayValue++;
+                    } else {
+                        innerData.innerHTML = dayValue++;
+                    }                
+                    // Append data to be viewed inside the button to the form
+                    form.appendChild(hiddenField);
+                    form.appendChild(innerData);
+                    // Append the form to the tabledata
+                    data.appendChild(form)
+                }
+                // Append data to the row
+                row.appendChild(data);
+                // Append the last row to the table
+                if (i == 42 - 1) {
+                    calenderBody.appendChild(row);
+                }
+            }
+        }
+
+        // Global Variables
+        var globalMonthFlag = 0,
+            globalYearFlag = 0;
+
+        // Listener that envokes a function on page load
+        document.addEventListener(
+            "DOMContentLoaded",
+            function() {
+                loadCurrentMonth(globalMonthFlag, globalYearFlag);
+            },
+            false
+        );
+
+        // Listener to increment the month
+        document.getElementById("nextMonth").addEventListener("click", function() {
+            var tempD = new Date();
+            var tempCurrentMonth = tempD.getMonth();
+            // If the increament reaches the last month of the year reassign the globalMonthFlag and globalYearFlag
+            globalMonthFlag += 1;
+            if (globalMonthFlag + tempCurrentMonth == 12) {
+                globalMonthFlag = -tempCurrentMonth;
+                globalYearFlag += 1;
+            }
+            loadCurrentMonth(globalMonthFlag, globalYearFlag);
+        });
+
+        // Listener to decrement the month
+        document.getElementById("previousMonth").addEventListener("click", function() {
+            var tempD = new Date();
+            var tempCurrentMonth = tempD.getMonth();
+            // If the increament reaches the last month of the year reassign the globalMonthFlag and globalYearFlag
+            globalMonthFlag -= 1;
+            if (globalMonthFlag == -(tempCurrentMonth + 1)) {
+                globalMonthFlag = 11 - tempCurrentMonth;
+                globalYearFlag -= 1;
+            }
+            loadCurrentMonth(globalMonthFlag, globalYearFlag);
+        });
+        function executeOnClick(dayValue, currentMonthNumber, monthFlag, currentYear, yearFlag){
+            var day = dayValue;
+            var month = parseInt(currentMonthNumber + monthFlag) + 1;
+            var year = currentYear + yearFlag;
+            // POST the data to the page to pass the date selected
+            fetch("http://localhost:8000/dashboard/rooms", {
+                method: "post",
+                mode: "cors",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    day: day,
+                    month: month,
+                    year: year
+                })
+            })
+            .then( (response) => { 
+                console.log("sent");
+            });
+        }
+    </script>
+</html>

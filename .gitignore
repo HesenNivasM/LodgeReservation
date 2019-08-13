@@ -1,0 +1,4 @@
+*.pyc
+*.lock
+roomReservation/*/migrations/
+settings.json
